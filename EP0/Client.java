@@ -20,7 +20,7 @@ public class Client {
         System.out.println("Iniciando Cliente " + number);
 
         socket = new DatagramSocket();
-        address = InetAddress.getByName("192.168.1.17");
+        address = InetAddress.getByName("localhost");
         
         switch(args[1]) {
             case "seq":

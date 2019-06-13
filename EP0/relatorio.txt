@@ -1,0 +1,23 @@
+Relatório de entrega do EP0
+
+Sistemas Distribuídos
+2Q de 2019
+
+Bruno Borghese
+RA 21028815
+
+B) Formato da mensagem transferida
+A mensagem está sendo transferida no formato "{cliente}-{mensagem}", onde:
+- {cliente} é o identificador do Cliente enviando a mensagem;
+- {mensagem} é o valor/número da mensagem, sendo possível os valores {1, 2, 3 ou 4}.
+
+C) Explicação em “alto nível” do tratamento de mensagens fora de ordem.
+
+
+D) Explicação em “alto nível” do tratamento de mensagens duplicadas.
+
+
+E) Explicação em “alto nível” do consumo do buffer e tratamento de mensagens perdidas.
+
+
+F) Links dos lugares de onde baseou seu código (caso aplicável).
