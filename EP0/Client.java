@@ -2,40 +2,92 @@ import java.net.*;
 import java.io.*;
 
 public class Client {
+    private static final int PORT = 1234;
 
-    static String name;
+    private static String number;
+    private static DatagramSocket socket;
+    private static InetAddress address;
+    private static byte[] buffer;
+    private static DatagramPacket datagram;
 
-    public static void main (String args[]) throws IOException {
-        name = args[0];
-        System.out.println("Iniciando Cliente " + name);
+    public static void main (String args[]) throws IOException, InterruptedException {
+        if(args.length < 2) {
+            System.out.println("Uso correto: java Cliente <1|2> <seq|fora|falta|dupla>");
+            return;
+        }
 
-        DatagramSocket clientSocket = new DatagramSocket();
-        /*InetAddress address = InetAddress.getByName("192.168.1.17");
-        byte[] buffer = ("Eu sou o cliente " + name).getBytes();
-        DatagramPacket datagram = new DatagramPacket(buffer, buffer.length, address, 1234);
-        clientSocket.send(datagram);
+        number = args[0];
+        System.out.println("Iniciando Cliente " + number);
 
-        DatagramPacket answer = new DatagramPacket(new byte[512], 512);
-        clientSocket.receive(answer);
-        System.out.println(answer.getData().toString()
-            +"\n"+ answer.getLength()
-            +"\n"+ answer.getAddress()
-            +"\n"+ answer.getPort());
-        clientSocket.close();*/
+        socket = new DatagramSocket();
+        address = InetAddress.getByName("192.168.1.17");
+        
+        switch(args[1]) {
+            case "seq":
+                System.out.println("Enviando mensagens ordenadas:");
+                sendOrdered();
+                break;
+            case "fora":
+                System.out.println("Enviando mensagens fora de ordem:");
+                sendUnordered();
+                break;
+            case "falta":
+                System.out.println("Enviando mensagens com algumas faltando:");
+                sendMissing();
+                break;
+            case "dupla":
+                System.out.println("Enviando mensagens com duplicadas:");
+                sendDuplicated();
+                break;
+            default:
+                break;
+        }
 
-        BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in));
-        InetAddress IPAddress = InetAddress.getByName("192.168.1.17");
-        byte[] sendData = new byte[1024];
-        byte[] receiveData = new byte[1024];
-        String sentence = inFromUser.readLine();
-        sentence = name + " diz: " + sentence;
-        sendData = sentence.getBytes();
-        DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 1234);
-        clientSocket.send(sendPacket);
-        DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
-        clientSocket.receive(receivePacket);
-        String modifiedSentence = new String(receivePacket.getData());
-        System.out.println("RECEIVED:" + modifiedSentence);
-        clientSocket.close();
+        System.out.println("Encerrando Cliente " + number);
+        socket.close();
+    }
+
+    private static void sendOrdered () throws IOException, InterruptedException {
+        for(int i = 1; i < 5; i++) {
+            buffer = (number + '-' + i).getBytes();
+            System.out.println("--- enviando: " + i);
+            datagram = new DatagramPacket(buffer, buffer.length, address, PORT);
+            socket.send(datagram);
+            Thread.sleep(500);
+        }
+    }
+
+    private static void sendUnordered () throws IOException, InterruptedException {
+        int[] nums = {3,1,4,2};
+        for(int i = 0; i < 4; i++) {
+            buffer = (number + '-' + nums[i]).getBytes();
+            System.out.println("--- enviando: " + nums[i]);
+            datagram = new DatagramPacket(buffer, buffer.length, address, PORT);
+            socket.send(datagram);
+            Thread.sleep(500);
+        }
+    }
+
+    private static void sendMissing () throws IOException, InterruptedException {
+        for(int i = 1; i < 5; i++) {
+            if(i != 2 && i != 3) {
+                buffer = (number + '-' + i).getBytes();
+                System.out.println("--- enviando: " + i);
+                datagram = new DatagramPacket(buffer, buffer.length, address, PORT);
+                socket.send(datagram);
+                Thread.sleep(500);
+            }
+        }
+    }
+
+    private static void sendDuplicated () throws IOException, InterruptedException {
+        int[] nums = {1,1,2,3,2,3,4,4};
+        for(int i = 0; i < 8; i++) {
+            buffer = (number + '-' + nums[i]).getBytes();
+            System.out.println("--- enviando: " + nums[i]);
+            datagram = new DatagramPacket(buffer, buffer.length, address, PORT);
+            socket.send(datagram);
+            Thread.sleep(500);
+        }
     }
 }
