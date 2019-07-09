@@ -3,6 +3,8 @@ import java.io.*;
 
 public class Client {
     private static final int PORT = 1234;
+
+    private static String number;
     private static DatagramSocket socket;
     private static InetAddress address;
     private static byte[] buffer = new byte["4".getBytes().length];
