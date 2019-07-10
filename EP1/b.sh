@@ -1,4 +1,2 @@
-javac Server.java
-if [ $? -eq 0 ]; then
-    javac Client.java
-fi
+javac Peer.java
+java Peer
