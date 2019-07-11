@@ -1,18 +1,5 @@
 {
     "configurations": [
-        {
-            "type": "java",
-            "name": "Client",
-            "request": "launch",
-            "mainClass": "Client",
-            "args": "cliente"
-        },
-        {
-            "type": "java",
-            "name": "Server",
-            "request": "launch",
-            "mainClass": "Server",
-            "args": "servidor"
-        }
+
     ]
 }
