@@ -16,4 +16,4 @@ done
 
 cd ..
 
-javac -cp '.:json-20180813.jar' Peer.java
+javac Peer.java

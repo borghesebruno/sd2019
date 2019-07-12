@@ -4,16 +4,29 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Date;
 import java.io.*;
-import org.json.*;
 
-class State {
-    public String files;
+class FileState {
+    public String name;
+    public Long length;
+    public Date lastModified;
+
+    public String toString() {
+        return "Nome: "+name +"; Tamanho: "+length +"; Mod: "+lastModified;
+    }
+}
+
+class PeerState implements Serializable {
+    public ArrayList<FileState> files;
     public Date updateTime;
+
+    public String toString() {
+        return "Arquivos: "+files.toString() +"; Upd: "+updateTime;
+    }
 }
 
 public class Peer {
-    public HashMap<String, State> peers = new HashMap<String, State>();
-    public static GetFilesThread getFilesT = new GetFilesThread();
+    public HashMap<String, PeerState> peers = new HashMap<String, PeerState>();
+    public static GetFilesThread getFilesT;
     public static SendMyStateThread sendMyFilesT;
 
     public static void main (String args[]) throws IOException, InterruptedException {
@@ -23,38 +36,46 @@ public class Peer {
         
         System.out.println("Iniciando Peer");
 
+        getFilesT = new GetFilesThread();
         getFilesT.start();
-        sendMyFilesT = new SendMyStateThread(Integer.parseInt(args[1]), getFilesT);
-        sendMyFilesT.start();
+        /*sendMyFilesT = new SendMyStateThread(Integer.parseInt(args[1]), getFilesT);
+        sendMyFilesT.start();*/
     }
 }
 
 class GetFilesThread extends Thread {
-    private String peerState = new String();
-    private File folder = new File("/home/bruno/repos/sd2019/EP1/files");
-    private void listFilesForFolder(File folder) {
-        StringBuilder sb = new StringBuilder();
+    private PeerState peerState = new PeerState();
+
+    private void listFiles() {
+        File folder = new File("/home/bruno/repos/sd2019/EP1/files");
+        PeerState state = new PeerState();
+        state.files = new ArrayList<FileState>();
         for (File fileEntry : folder.listFiles()) {
-            sb.append(fileEntry.getName());
-            sb.append('/');
+            FileState file = new FileState();
+            file.name = fileEntry.getName();
+            file.length = fileEntry.length();
+            file.lastModified = new Date(fileEntry.lastModified());
+            state.files.add(file);
         }
-        if(sb.toString().endsWith("/"))
-            sb.deleteCharAt(sb.length()-1);
-        peerState = sb.toString();
+        state.updateTime = new Date();
+        this.peerState = state;
     }
 
-    public String getPeerState() {
+    public PeerState getPeerState() {
         return this.peerState;
     }
 
+    @Override
     public void run() {
         try {
             while(true) {
-                listFilesForFolder(folder);
+                listFiles();
                 Thread.sleep(5000);
             }
         }
-        catch (Exception e) { }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
 
@@ -75,7 +96,13 @@ class SendMyStateThread extends Thread {
             DatagramPacket datagram;
 
             while(true) {
-                buffer = (getFilesThread.getPeerState()).getBytes();
+                ByteArrayOutputStream byteArr = new ByteArrayOutputStream();
+                ObjectOutputStream out = new ObjectOutputStream(byteArr) ;
+                out.writeObject(getFilesThread.getPeerState());
+                buffer = byteArr.toByteArray();
+                out.close();
+                byteArr.close();
+
                 datagram = new DatagramPacket(buffer, buffer.length, address, PORT);
                 socket.send(datagram);
                 Thread.sleep(5000);
