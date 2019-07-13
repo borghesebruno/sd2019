@@ -18,8 +18,15 @@ class FileState implements Serializable {
 
 class PeerState implements Serializable {
     private static final long serialVersionUID = 1L;
+
+    public String peerAddress;
 	public ArrayList<FileState> files;
     public Date updateTime;
+
+    PeerState(String address) {
+        this.peerAddress = address;
+        this.files = new ArrayList<FileState>();
+    }
 
     public String toString() {
         return "Arquivos: "+files.toString() +"; Upd: "+updateTime;
@@ -47,7 +54,7 @@ public class Peer {
 			String line = reader.readLine();
 			while (line != null) {
                 if(line.charAt(line.length() - 1) != '#')
-				    peers.put(line, new PeerState());
+				    peers.put(line, new PeerState(line));
 				line = reader.readLine();
 			}
 			reader.close();
@@ -57,7 +64,7 @@ public class Peer {
 
         getFilesT = new GetFilesThread();
         getFilesT.start();
-        sendMyStateT = new SendMyStateThread(getFilesT, Integer.parseInt(args[0]), peers);
+        sendMyStateT = new SendMyStateThread(getFilesT, peers);
         sendMyStateT.start();
         receiveStateT = new ReceiveStateThread(Integer.parseInt(args[0]), peers);
         receiveStateT.start();
@@ -101,18 +108,16 @@ class GetFilesThread extends Thread {
 
 class SendMyStateThread extends Thread {
     private GetFilesThread getFilesThread;
-    private int PORT;
     private HashMap<String, PeerState> peers;
 
-    SendMyStateThread(GetFilesThread getFilesThread, int port, HashMap<String, PeerState> peers) {
+    SendMyStateThread(GetFilesThread getFilesThread, HashMap<String, PeerState> peers) {
         this.getFilesThread = getFilesThread;
-        this.PORT = port;
         this.peers = peers;
     }
 
     public void run() {
         try {
-            DatagramSocket socket = new DatagramSocket(PORT);
+            DatagramSocket socket = new DatagramSocket();
             byte[] buffer;
             DatagramPacket datagram;
 
