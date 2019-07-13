@@ -4,7 +4,7 @@ rm -rf files
 mkdir files
 cd files
 
-no_of_files=5;
+no_of_files=3;
 counter=1;
 while [ $counter -le $no_of_files ];
 do

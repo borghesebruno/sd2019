@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.io.*;
 
-class FileState {
+class FileState implements Serializable {
     public String name;
     public Long length;
     public Date lastModified;
@@ -38,6 +38,7 @@ public class Peer {
         }
         
         System.out.println("Iniciando Peer na porta " + args[0]);
+
         HashMap<String, PeerState> peers = new HashMap<String, PeerState>();
 
         BufferedReader reader;
@@ -45,7 +46,8 @@ public class Peer {
 			reader = new BufferedReader(new FileReader("addresses.txt"));
 			String line = reader.readLine();
 			while (line != null) {
-				peers.put(line, new PeerState());
+                if(line.charAt(line.length() - 1) != '#')
+				    peers.put(line, new PeerState());
 				line = reader.readLine();
 			}
 			reader.close();
@@ -55,7 +57,7 @@ public class Peer {
 
         getFilesT = new GetFilesThread();
         getFilesT.start();
-        sendMyStateT = new SendMyStateThread(getFilesT, peers);
+        sendMyStateT = new SendMyStateThread(getFilesT, Integer.parseInt(args[0]), peers);
         sendMyStateT.start();
         receiveStateT = new ReceiveStateThread(Integer.parseInt(args[0]), peers);
         receiveStateT.start();
@@ -84,7 +86,6 @@ class GetFilesThread extends Thread {
         return this.peerState;
     }
 
-    @Override
     public void run() {
         try {
             while(true) {
@@ -100,16 +101,18 @@ class GetFilesThread extends Thread {
 
 class SendMyStateThread extends Thread {
     private GetFilesThread getFilesThread;
+    private int PORT;
     private HashMap<String, PeerState> peers;
 
-    SendMyStateThread(GetFilesThread getFilesThread, HashMap<String, PeerState> peers) {
+    SendMyStateThread(GetFilesThread getFilesThread, int port, HashMap<String, PeerState> peers) {
         this.getFilesThread = getFilesThread;
+        this.PORT = port;
         this.peers = peers;
     }
 
     public void run() {
         try {
-            DatagramSocket socket = new DatagramSocket();
+            DatagramSocket socket = new DatagramSocket(PORT);
             byte[] buffer;
             DatagramPacket datagram;
 
@@ -119,21 +122,19 @@ class SendMyStateThread extends Thread {
                 String sendTo = keysAsArray.get(r.nextInt(keysAsArray.size()));
                 InetAddress address = InetAddress.getByName(sendTo.split(":")[0]);
 
-                System.out.println(sendTo);
-                System.out.println(address.toString());
+                try {
+                    ByteArrayOutputStream byteArr = new ByteArrayOutputStream();
+                    ObjectOutputStream out = new ObjectOutputStream(byteArr) ;
+                    out.writeObject(getFilesThread.getPeerState());
+                    buffer = byteArr.toByteArray();
+                    out.close();
+                    byteArr.close();
 
-                ByteArrayOutputStream byteArr = new ByteArrayOutputStream();
-                ObjectOutputStream out = new ObjectOutputStream(byteArr) ;
-                out.writeObject(getFilesThread.getPeerState());
-                buffer = byteArr.toByteArray();
-                out.close();
-                byteArr.close();
-
-                datagram = new DatagramPacket(buffer, buffer.length, address, Integer.parseInt(sendTo.split(":")[1]));
-                socket.send(datagram);
-
-                System.out.println(sendTo);
-                System.out.println(address.toString());
+                    datagram = new DatagramPacket(buffer, buffer.length, address, Integer.parseInt(sendTo.split(":")[1]));
+                    socket.send(datagram);
+                } catch(Exception e) {
+                    e.printStackTrace();
+                }
                 
                 Thread.sleep(5000);
             }
@@ -169,7 +170,7 @@ class ReceiveStateThread extends Thread {
                 in.close();
                 byteArr.close();
 
-                System.out.println(state.toString());
+                System.out.println(receivePacket.getAddress().getHostAddress() +":"+ receivePacket.getPort() +" enviou: " + state.toString());
 
                 //if(this.peers)
             }
