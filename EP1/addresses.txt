@@ -1,2 +1,2 @@
-ec2-3-19-62-29.us-east-2.compute.amazonaws.com:4444
-ec2-18-220-134-65.us-east-2.compute.amazonaws.com:4444
+172.31.24.168:4444
+172.31.26.21:4444
