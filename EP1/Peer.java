@@ -264,15 +264,19 @@ class ReceiveStateThread extends Thread {
                 in.close();
                 byteArr.close();
 
+                String type = "DUPLICADO";
                 if(peers.containsKey(state.peerAddress)) {
                     PeerState pState = peers.get(state.peerAddress);
                     if(pState.updateTime.before(state.updateTime)) {
+                        type = "ATUALIZADO";
                         peers.put(state.peerAddress, state);
+                    } else if(state.updateTime.before(pState.updateTime)) {
+                        type = "ANTIGO";
                     }
-                }
 
-                System.out.println("Recebimento do estado do peer "+state.peerAddress+" por gossip vindo do peer "+state.peerWhoSent);
-                System.out.println("");
+                    System.out.println("Recebimento "+type+" do estado do peer "+state.peerAddress+" por gossip vindo do peer "+state.peerWhoSent);
+                    System.out.println("");
+                }
             }
 
             //serverSocket.close();
