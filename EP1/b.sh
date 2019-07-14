@@ -16,4 +16,4 @@ done
 
 cd ..
 
-javac Peer.java
+#javac Peer.java
