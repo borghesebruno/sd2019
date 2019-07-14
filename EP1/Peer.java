@@ -98,7 +98,8 @@ class GetFilesThread extends Thread {
     }
 
     private Integer listFiles() {
-        File folder = new File("/home/bruno/repos/sd2019/EP1/files");
+        String home = System.getProperty("user.dir");
+        File folder = new File(home+"/files");
         PeerState state = new PeerState(myAddress, false);
         state.files = new ArrayList<FileState>();
         File[] files =  folder.listFiles();
