@@ -6,3 +6,22 @@ Sistemas Distribuídos
 Bruno Borghese
 RA 21028815
 
+b) Formato da mensagem encaminhada do cliente para o coordenador:
+
+
+c) Formato da mensagem encaminhada do coordenador para o mapper:
+
+
+d) Formato da mensagem encaminhada do mapper para o reducer:
+
+
+e) Formato da mensagem encaminhada do reducer para o cliente:
+
+
+f) Explicação em “alto nível” de como o reducer espera os M mappers:
+
+
+g) Links dos lugares de onde baseou seu código (caso aplicável).
+​https://docs.oracle.com/javase/tutorial/networking/urls/readingURL.html,
+​https://jsoup.org/cookbook/extracting-data/example-list-links,
+​https://www.mkyong.com/regular-expressions/how-to-extract-html-links-with-regular-expression/
