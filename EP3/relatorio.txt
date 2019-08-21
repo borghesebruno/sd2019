@@ -1,0 +1,61 @@
+Relatório de entrega do EP1
+
+Sistemas Distribuídos
+2Q de 2019
+
+Bruno Borghese
+RA 21028815
+
+
+B) Formato da mensagem transferida entre peers via gossip
+class PeerState implements Serializable {
+    private static final long serialVersionUID = 1L;
+    public String peerAddress;
+    public String peerWhoSent;
+	public ArrayList<FileState> files;
+    public Date updateTime;
+    public boolean clean;
+}
+A classe acima é uma versão resumida da classe transferida.
+Por ser do tipo Serializable(tive dificuldades com o uso do JSON no java/linux e acabei encontrado isso como alternativa para String pura), ela possui o serialVersionUID.
+A String peerAddress contém o endereço e porta do qual a classe trata, enquanto a String peerWhoSent informa os dados do peer que está enviando o estado.
+O Date updateTime contém o horário em que o estado foi atualizado pelo próprio peer a qual pertence.
+O boolean clean é verdadeiro quando o estado não contém dados reais sobre o Peer, ou seja, ainda não foi atualizado ou foi limpo pela thread 4.
+O ArrayList files contém os arquivos do peer, no formato descrito pela classe abaixo.
+
+class FileState implements Serializable {
+    public String name;
+    public Long length;
+    public Date lastModified;
+}
+A String name é o título do arquivo, enquanto length é o tamanho em bytes, e lastModified é o horário da última modificação do arquivo.
+
+
+C) Explicação em “alto nível” do gossip implementado
+O gossip foi implementado conforme os requisitos da EP.
+Antes de se executar, deve ser criada uma pasta "files" vazia na mesma pasta em que estiverem os outros arquivos.
+Em seguida, executar o script "b.sh" no bash. Ele apaga o conteúdo da pasta files, e então cria 3 arquivos de texto vazios com nomes randômicos.
+O arquivo "addresses.txt" deve conter o endereço e porta (endereço:porta) dos peers, um em cada linha, incluindo o do Peer que será executado, porém este deve ter um '#' no final da linha, para ser ignorado.
+Depois, execute o comando "javac Peer.java" para compilar.
+Por fim, execute com o comando "java Peer porta", onde "porta" é a porta que o Peer deve escutar(é a mesma que estará no arquivo addresses.txt).
+
+Em relação ao tempo:
+- a T1 atualiza os arquivos a cada 5 segundos;
+- a T2 envia os arquivos do peer a cada 5 segundos;
+- a T3 envia os arquivos de um peer aleatório a cada 5 segundos;
+- e a cada 10 segundos, a T4 apaga os estados dos peers que não foram atualizados nos últimos 60 segundos;
+
+
+D) Explicação em “alto nível” do tratamento de mensagens duplicadas
+Se o updateTime do estado do peer X recebido for igual ao do estado do peer X que já consta, ele é ignorado mostrando uma mensagem que recebeu duplicado.
+
+
+E) Explicação em “alto nível” do tratamento de mensagens antigas
+Se o updateTime do estado do peer X recebido for anterior ao do estado do peer X que já consta, ele é ignorado mostrando uma mensagem que recebeu o estado anterior.
+
+
+F) Links dos lugares de onde baseou seu código (caso aplicável)
+Foram consultados os sites indicados no pdf sobre o EP, e sites diversos para dúvidas de sintáxe da linguagem devido à falta de familiariedade.
+https://www.javaworld.com/article/2074217/java-101--understanding-java-threads--part-1--introducing-threads-and-runnables.html
+https://www.geeksforgeeks.org/serialization-in-java/
+https://stackoverflow.com/questions/4252294/sending-objects-across-network-using-udp-in-java
