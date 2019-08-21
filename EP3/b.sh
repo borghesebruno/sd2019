@@ -15,5 +15,3 @@ do
 done
 
 cd ..
-
-#javac Peer.java
