@@ -3,8 +3,8 @@ import java.util.*;
 import java.io.*;
 
 public class Coordenador {
-    private static String[] mappersAddress = { "192.168.1.3", "192.168.1.3"};//, "192.168.1.3" };
-    private static String[] mappersPorts = { "2223", "2224"};//, "2225" };
+    private static String[] mappersAddress = { "172.31.23.116", "172.31.23.89", "172.31.24.152" };
+    private static String[] mappersPorts = { "2223", "2224", "2225" };
     private static String port = "2222";
 
     public static void main (String args[]) throws UnknownHostException {

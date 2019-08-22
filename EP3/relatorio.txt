@@ -6,6 +6,18 @@ Sistemas Distribuídos
 Bruno Borghese
 RA 21028815
 
+
+****************
+
+OBSERVAÇÃO.: Optei por encerrar cada nó após uma execução da sua parte no sistema.
+Para realizar uma nova requisição, será preciso iniciar todos os serviços novamente.
+
+OBSERVAÇÃO.: Para executar a aplicação, deve ser alterado os endereços e portas dentro das
+classes Client, Coordenador e Mapper, recompilar os arquivos .java, e então executar adequadamente.
+Para a execução dos mappers, é necessário adiicionar o arquivo jsoup-1.12.1.jar no classpath.
+
+****************
+
 b) Formato da mensagem encaminhada do cliente para o coordenador:
 Usando a classe serializable ClientRequest, que possui as seguintes informações:
 - String clientWhoSent: endereço e porta do cliente fazendo o request;
@@ -51,7 +63,3 @@ https://www.baeldung.com/java-write-to-file,
 https://pt.stackoverflow.com/questions/43127/multi-thread-em-socket-java,
 https://www.pegaxchange.com/2017/12/07/simple-tcp-ip-server-client-java/,
 https://stackoverflow.com/questions/12910350/how-to-send-an-object-over-tcp-in-java
-
-
-OBSERVAÇÃO.: Optei por encerrar cada nó após uma execução da sua parte no sistema.
-Para realizar uma nova requisição, será preciso iniciar todos os serviços novamente.

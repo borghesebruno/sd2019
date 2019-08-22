@@ -3,7 +3,7 @@ import java.util.*;
 import java.io.*;
 
 public class Client {
-    private static String coordenadorAddress = "192.168.1.3:2222";
+    private static String coordenadorAddress = "172.31.31.221:2222";
     private static String port = "2221";
     
     public static void main (String args[]) throws UnknownHostException, InterruptedException, IOException {

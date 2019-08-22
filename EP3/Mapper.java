@@ -8,7 +8,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 public class Mapper {
-    private static String reducerAddress = "192.168.1.3:2226";
+    private static String reducerAddress = "172.31.24.168:2226";
 
     public static void main (String args[]) throws UnknownHostException, IOException {
         if(args.length == 0)
