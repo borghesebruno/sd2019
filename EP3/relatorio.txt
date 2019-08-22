@@ -7,18 +7,40 @@ Bruno Borghese
 RA 21028815
 
 b) Formato da mensagem encaminhada do cliente para o coordenador:
+Usando a classe serializable ClientRequest, que possui as seguintes informações:
+- String clientWhoSent: endereço e porta do cliente fazendo o request;
+- ArrayList<String> urls: lista de urls a serem examinadas pelo coordenador;
+- Integer part: não utilizado nesta etapa;
+- Integer parts: não utilizado nesta etapa.
 
 
 c) Formato da mensagem encaminhada do coordenador para o mapper:
+Também usa a classe serializable ClientRequest, mas com as seguintes informações:
+- String clientWhoSent: endereço e porta do cliente que fez o request inicial;
+- ArrayList<String> urls: lista de urls a serem examinadas pelo mapper que a recebe;
+- Integer part: identifica qual parte, da lista de urls passada pelo cliente, será processada por este mapper;
+- Integer parts: informa em quantas partes a lista de urls passada pelo cliente foi dividida.
 
 
 d) Formato da mensagem encaminhada do mapper para o reducer:
+Utiliza a classe serializable MapperResponse, com as seguintes informações:
+- String clientWhoSent: endereço e porta do cliente que fez o request inicial;
+- HashMap<String, ArrayList<String>> index: Map em que a chave é a uma das urls que o mapper recebeu, e o valor é a lista de links encontradas no site da chave;
+- Integer part: identifica qual parte, da lista de urls passada pelo cliente, foi processada por este mapper;
+- Integer parts: informa em quantas partes a lista de urls passada pelo cliente foi dividida.
 
 
 e) Formato da mensagem encaminhada do reducer para o cliente:
+A classe serializable MapperResponse contém apenas o indice invertido, no formato HashMap<String, ArrayList<String>> index,
+onde index é um Map com a chave sendo a url e o valor é uma lista com quais urls possuem algum link que apontem para a chave.
+
 
 
 f) Explicação em “alto nível” de como o reducer espera os M mappers:
+O Reducer possui um socket que aguarda receber uma primeira chamada de algum dos Mappers.
+Ele lê esse primeiro MapperResponse recebido e identifica pela propriedade parts quantas outras mensagens ainda receberá.
+Então passará a aguardar cada uma das mensagens restantes dentro de um while em que o loop será executado para cada mensagem faltando.
+Quando receber todas as mensagens, irá passar a processar cada uma.
 
 
 g) Links dos lugares de onde baseou seu código (caso aplicável).
@@ -26,4 +48,10 @@ g) Links dos lugares de onde baseou seu código (caso aplicável).
 ​https://jsoup.org/cookbook/extracting-data/example-list-links,
 ​https://www.mkyong.com/regular-expressions/how-to-extract-html-links-with-regular-expression/,
 https://www.baeldung.com/java-write-to-file,
-https://pt.stackoverflow.com/questions/43127/multi-thread-em-socket-java
+https://pt.stackoverflow.com/questions/43127/multi-thread-em-socket-java,
+https://www.pegaxchange.com/2017/12/07/simple-tcp-ip-server-client-java/,
+https://stackoverflow.com/questions/12910350/how-to-send-an-object-over-tcp-in-java
+
+
+OBSERVAÇÃO.: Optei por encerrar cada nó após uma execução da sua parte no sistema.
+Para realizar uma nova requisição, será preciso iniciar todos os serviços novamente.
