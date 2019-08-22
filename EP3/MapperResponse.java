@@ -1,19 +1,19 @@
 import java.io.*;
 import java.util.*;
 
-class ClientRequest implements Serializable {
+class MapperResponse implements Serializable {
     private static final long serialVersionUID = 1L;
 
     public String clientWhoSent;
-    public ArrayList<String> urls;
+    public HashMap<String, ArrayList<String>> index;
     public Integer part;
     public Integer parts;
     
-    ClientRequest() { }
+    MapperResponse() { }
 
-    ClientRequest(String clientWhoSent, ArrayList<String> urls) {
+    MapperResponse(String clientWhoSent, HashMap<String, ArrayList<String>> index) {
         this.clientWhoSent = clientWhoSent;
-        this.urls = urls;
+        this.index = index;
     }
 
     void setParts(Integer part, Integer parts) {

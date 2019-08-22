@@ -3,10 +3,10 @@ import java.util.*;
 import java.io.*;
 
 public class Client {
-    private static String cordenadorAddress = "192.168.1.3:2222";
+    private static String coordenadorAddress = "192.168.1.3:2222";
     private static String port = "2221";
     
-    public static void main (String args[]) throws UnknownHostException, InterruptedException {
+    public static void main (String args[]) throws UnknownHostException, InterruptedException, IOException {
         String myAddress = InetAddress.getLocalHost().getHostAddress() + ":" + port;
         System.out.println("Iniciando Client no endereço: " + myAddress);
 
@@ -23,7 +23,7 @@ public class Client {
 			e.printStackTrace();
         }
         
-        System.out.println("Enviando lista com " + urls.size() + " URLs.");
+        System.out.println("Enviando lista com " + urls.size() + " URLs para o coordenador no endereço " + coordenadorAddress + ".");
         
         ClientRequest req = new ClientRequest(myAddress, urls);
 
@@ -40,7 +40,7 @@ public class Client {
                 out.close();
                 byteArr.close();
 
-                datagram = new DatagramPacket(buffer, buffer.length, InetAddress.getByName(cordenadorAddress.split(":")[0]), Integer.parseInt(cordenadorAddress.split(":")[1]));
+                datagram = new DatagramPacket(buffer, buffer.length, InetAddress.getByName(coordenadorAddress.split(":")[0]), Integer.parseInt(coordenadorAddress.split(":")[1]));
                 socket.send(datagram);
 
             } catch(Exception e) {
@@ -52,11 +52,12 @@ public class Client {
             e.printStackTrace();
         }
 
-        Thread.sleep(30000);
+        System.out.println("Aguardando resposta por 30 segundos.");
 
-        /*ReducerResponse response = new ReducerResponse();
+        ReducerResponse response = new ReducerResponse();
         try {
-            DatagramSocket serverSocket = new DatagramSocket(Integer.parseint(port));
+            DatagramSocket serverSocket = new DatagramSocket(Integer.parseInt(port));
+            serverSocket.setSoTimeout(30000);
             byte[] receiveData;
 
             receiveData = new byte[2048];
@@ -65,10 +66,14 @@ public class Client {
 
             ByteArrayInputStream byteArr = new ByteArrayInputStream(receiveData);
             ObjectInputStream in = new ObjectInputStream(byteArr) ;
-            response = (ReducerResponce)in.readObject();
+            response = (ReducerResponse)in.readObject();
             in.close();
             byteArr.close();
             serverSocket.close();
+        }
+        catch (SocketTimeoutException e) {
+            System.out.println("Indice nao recebido, encerrando Cliente no endereço: " + myAddress);
+            return;
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -77,10 +82,27 @@ public class Client {
         System.out.println("Indice invertido recebido.");
         System.out.println("Salvando no arquivo \"index.txt\".");
 
-        BufferedWriter writer = new BufferedWriter(new FileWriter("index.txt"));
-        
-        response.sites
-        
-        writer.close();*/
+        try {
+            BufferedWriter writer = new BufferedWriter(new FileWriter("index.txt"));
+
+            urls = new ArrayList<String>(response.index.keySet());
+            for(Integer i = 0; i < urls.size(); i++) {
+                String url = urls.get(i);
+                ArrayList<String> pointers = response.index.get(url);
+                String line = url + " : { ";
+                for(Integer j = 0; j < pointers.size(); j++) {
+                    line += pointers.get(j) + "; ";
+                }
+                line += " } ";
+                writer.write(line);
+                writer.newLine();
+            }
+            
+            writer.close();
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("Encerrando Client no endereço: " + myAddress);
     }
 }
