@@ -53,23 +53,15 @@ public class Client {
         }
 
         System.out.println("Aguardando resposta por 30 segundos.");
-
         ReducerResponse response = new ReducerResponse();
+
         try {
-            DatagramSocket serverSocket = new DatagramSocket(Integer.parseInt(port));
-            serverSocket.setSoTimeout(30000);
-            byte[] receiveData;
+            ServerSocket socket = new ServerSocket(Integer.parseInt(port));
+            socket.setSoTimeout(30000);
+            Socket skt = socket.accept();
 
-            receiveData = new byte[2048];
-            DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
-            serverSocket.receive(receivePacket); 
-
-            ByteArrayInputStream byteArr = new ByteArrayInputStream(receiveData);
-            ObjectInputStream in = new ObjectInputStream(byteArr) ;
-            response = (ReducerResponse)in.readObject();
-            in.close();
-            byteArr.close();
-            serverSocket.close();
+            ObjectInputStream objectInput = new ObjectInputStream(skt.getInputStream());
+            response = (ReducerResponse) objectInput.readObject();
         }
         catch (SocketTimeoutException e) {
             System.out.println("Indice nao recebido, encerrando Cliente no endereço: " + myAddress);

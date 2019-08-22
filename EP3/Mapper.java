@@ -58,7 +58,21 @@ public class Mapper {
             index.put(url, mapped);
         }
 
+        System.out.println("Enviando indices encontrados para o reducer no endereço " + reducerAddress + ".");
+        MapperResponse response = new MapperResponse(request.clientWhoSent, index);
+        response.setParts(request.part, request.parts);
         try {
+            Socket socket = new Socket(reducerAddress.split(":")[0], Integer.parseInt(reducerAddress.split(":")[1]));
+
+            ObjectOutputStream objectOutput = new ObjectOutputStream(socket.getOutputStream());
+            objectOutput.writeObject(response);
+
+            socket.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        /*try {
             MapperResponse response;
 
             DatagramSocket socket = new DatagramSocket();
@@ -83,7 +97,7 @@ public class Mapper {
         }
         catch (Exception e) {
             e.printStackTrace();
-        }
+        }*/
 
         System.out.println("Encerrando Mapper no endereço: " + myAddress);
     }

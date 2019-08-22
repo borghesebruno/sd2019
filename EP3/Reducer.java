@@ -13,7 +13,41 @@ public class Reducer {
         String fromClient = "";
         Integer totalParts = 0;
 
+        MapperResponse request = new MapperResponse();
+        ServerSocket socket = new ServerSocket(Integer.parseInt(port));
         try {
+            Socket skt = socket.accept();
+
+            ObjectInputStream objectInput = new ObjectInputStream(skt.getInputStream());
+            request = (MapperResponse) objectInput.readObject();
+            String fromWho = skt.getInetAddress().getHostAddress() +':'+ skt.getPort();
+            System.out.println("Indice recebido do mapper do endereço " + fromWho);
+
+            requests.add(request);
+
+            fromClient = request.clientWhoSent;
+            totalParts = request.parts;
+            Integer receivedParts = 1;
+            while(receivedParts < totalParts) {
+                skt = socket.accept();
+
+                objectInput = new ObjectInputStream(skt.getInputStream());
+                request = (MapperResponse) objectInput.readObject();
+                fromWho = skt.getInetAddress().getHostAddress() +':'+ skt.getPort();
+                System.out.println("Indice recebido do mapper do endereço " + fromWho);
+
+                requests.add(request);
+
+                receivedParts++;
+            }
+            
+            socket.close();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        /*try {
             MapperResponse request = new MapperResponse();
             DatagramSocket serverSocket = new DatagramSocket(Integer.parseInt(port));
             DatagramPacket receivePacket;
@@ -61,7 +95,7 @@ public class Reducer {
         }
         catch (Exception e) {
             e.printStackTrace();
-        }
+        }*/
 
         System.out.println(totalParts + " indices recebidos.");
         System.out.println("Criando indice invertido e ordenado.");
@@ -93,51 +127,16 @@ public class Reducer {
                 }
             }
         }
-        
+
+        System.out.println("Enviando indice invertido para o cliente no endereço " + fromClient + ".");
         try {
-            BufferedWriter writer = new BufferedWriter(new FileWriter("resultado.txt"));
+            Socket clientSocket = new Socket(fromClient.split(":")[0], Integer.parseInt(fromClient.split(":")[1]));
 
-            ArrayList<String> urls = new ArrayList<String>(invertedIndex.keySet());
-            for(Integer i = 0; i < urls.size(); i++) {
-                String url = urls.get(i);
-                ArrayList<String> pointers = invertedIndex.get(url);
-                String line = url + " : { ";
-                for(Integer j = 0; j < pointers.size(); j++) {
-                    line += pointers.get(j) + "; ";
-                }
-                line += " } ";
-                writer.write(line);
-                writer.newLine();
-            }
-            
-            writer.close();
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
+            ObjectOutputStream objectOutput = new ObjectOutputStream(clientSocket.getOutputStream());
+            objectOutput.writeObject(new ReducerResponse(invertedIndex));
 
-        try {
-            ReducerResponse resp;
-
-            DatagramSocket socket = new DatagramSocket();
-            byte[] buffer;
-            DatagramPacket datagram;
-
-            System.out.println("Enviando indice invertido para o cliente no endereço " + fromClient + ".");
-
-            resp = new ReducerResponse(invertedIndex);
-            ByteArrayOutputStream byteArr = new ByteArrayOutputStream();
-            ObjectOutputStream out = new ObjectOutputStream(byteArr) ;
-            out.writeObject(resp);
-            buffer = byteArr.toByteArray();
-            out.close();
-            byteArr.close();
-
-            datagram = new DatagramPacket(buffer, buffer.length, InetAddress.getByName(fromClient.split(":")[0]), Integer.parseInt(fromClient.split(":")[1]));
-            socket.send(datagram);
-
-            socket.close();
-        }
-        catch (Exception e) {
+            clientSocket.close();
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
