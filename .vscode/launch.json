@@ -1,5 +1,11 @@
 {
     "configurations": [
-
+        {
+            "type": "java",
+            "name": "CodeLens (Launch) - Reducer",
+            "request": "launch",
+            "mainClass": "Reducer",
+            "projectName": "sd2019_56bb542f"
+        }
     ]
 }

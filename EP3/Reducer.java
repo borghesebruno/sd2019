@@ -84,7 +84,9 @@ public class Reducer {
                     String found = foundURLs.get(j);
                     
                     if(!invertedIndex.containsKey(found)) {
-                        invertedIndex.put(found, new ArrayList<String>());
+                        ArrayList<String> foundPointer = new ArrayList<String>();
+                        foundPointer.add(url);
+                        invertedIndex.put(found, foundPointer);
                     } else {
                         invertedIndex.get(found).add(url);
                     }
